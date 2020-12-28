@@ -1,16 +1,21 @@
 from Classes.board import Board
-from Classes.ImageLoader import ImageLoader
+from Classes.PGNReader import PGNReader
 import tkinter as tk
-from screeninfo import get_monitors
 
 window = tk.Tk()
 
-min_value = min(get_monitors()[0].height, get_monitors()[0].width) - 100
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+min_value = min(screen_width, screen_height) - 100
 
-window.geometry(str(min_value) + 'x' + str(min_value) + "+" + str(int((get_monitors()[0].width-min_value)/2)) + "+0")
+
+window.geometry(str(min_value) + 'x' + str(min_value) + "+" + str(int((screen_width-min_value)/2)) + "+0")
 
 board = Board(window, min_value, "#FFFFFF", "#94633a")
-board.reset_board()
+pgn_r = PGNReader()
+pgn_r.read(board, min_value/8)
+#board.reset_board()
+
 
 
 board.print_board()

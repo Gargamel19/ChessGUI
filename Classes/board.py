@@ -5,7 +5,7 @@ from Classes.Figures.King import King
 from Classes.Figures.Pawn import Pawn
 from Classes.Figures.Rook import Rook
 from Classes.Figures.Bishop import Bishop
-from Classes.Figures.Knite import Knite
+from Classes.Figures.Knight import Knight
 
 
 class Board:
@@ -49,14 +49,12 @@ class Board:
         for line in self.squares:
             for sqaure in line:
                 if sqaure.color == "white":
-                    sqaure.draw_square(self.color_white, canvas)
+                    sqaure.draw_square(self.color_white, self.color_white, canvas)
                 else:
-                    sqaure.draw_square(self.color_black, canvas)
+                    sqaure.draw_square(self.color_black, self.color_black, canvas)
         canvas.pack()
 
     def set_figure_to_coords(self, figure, coordinateA, coordinate1):
-        x = 0
-        y = 0
 
         if coordinateA == "a":
             a = 7
@@ -81,47 +79,76 @@ class Board:
             a = abs(a - 7)
             x = abs(x - 7)
 
-        print(str(x) + ":" + str(a))
-
         self.squares[a][x].content = figure
+        figure.set_square(a, x)
+        figure.set_board(self)
 
+    def get_coordinate_from_square(self, a, x):
+
+        if self.white_bottom:
+            a = abs(a - 7)
+            x = abs(x - 7)
+
+        if a == 7:
+            a_erg = "a"
+        elif a == 6:
+            a_erg = "b"
+        elif a == 5:
+            a_erg = "c"
+        elif a == 4:
+            a_erg = "d"
+        elif a == 3:
+            a_erg = "e"
+        elif a == 2:
+            a_erg = "f"
+        elif a == 1:
+            a_erg = "g"
+        elif a == 0:
+            a_erg = "h"
+
+        x = abs(x)
+        x = x + 1
+
+        return [a_erg, x]
 
     def reset_board(self):
+
+        size = self.heigth/8
         # Queens
-        self.set_figure_to_coords(Queen("white"), "d", 1)
-        self.set_figure_to_coords(Queen("black"), "d", 8)
+        self.set_figure_to_coords(Queen("white", size), "d", 1)
+        self.set_figure_to_coords(Queen("black", size), "d", 8)
         # Kings
-        self.set_figure_to_coords(King("white"), "e", 1)
-        self.set_figure_to_coords(King("black"), "e", 8)
+        self.set_figure_to_coords(King("white", size), "e", 1)
+        self.set_figure_to_coords(King("black", size), "e", 8)
         # Knites
-        self.set_figure_to_coords(Knite("white"), "b", 1)
-        self.set_figure_to_coords(Knite("white"), "g", 1)
-        self.set_figure_to_coords(Knite("black"), "b", 8)
-        self.set_figure_to_coords(Knite("black"), "g", 8)
+        self.set_figure_to_coords(Knight("white", size), "b", 1)
+        self.set_figure_to_coords(Knight("white", size), "g", 1)
+        self.set_figure_to_coords(Knight("black", size), "b", 8)
+        self.set_figure_to_coords(Knight("black", size), "g", 8)
         # Bishop
-        self.set_figure_to_coords(Bishop("white"), "c", 1)
-        self.set_figure_to_coords(Bishop("white"), "f", 1)
-        self.set_figure_to_coords(Bishop("black"), "c", 8)
-        self.set_figure_to_coords(Bishop("black"), "f", 8)
+        self.set_figure_to_coords(Bishop("white", size), "c", 1)
+        self.set_figure_to_coords(Bishop("white", size), "f", 1)
+        self.set_figure_to_coords(Bishop("black", size), "c", 8)
+        self.set_figure_to_coords(Bishop("black", size), "f", 8)
         # Rook
-        self.set_figure_to_coords(Rook("white"), "a", 1)
-        self.set_figure_to_coords(Rook("white"), "h", 1)
-        self.set_figure_to_coords(Rook("black"), "a", 8)
-        self.set_figure_to_coords(Rook("black"), "h", 8)
+        self.set_figure_to_coords(Rook("white", size), "a", 1)
+        self.set_figure_to_coords(Rook("white", size), "h", 1)
+        self.set_figure_to_coords(Rook("black", size), "a", 8)
+        self.set_figure_to_coords(Rook("black", size), "h", 8)
         # pawns
-        self.set_figure_to_coords(Pawn("white"), "a", 2)
-        self.set_figure_to_coords(Pawn("white"), "b", 2)
-        self.set_figure_to_coords(Pawn("white"), "c", 2)
-        self.set_figure_to_coords(Pawn("white"), "d", 2)
-        self.set_figure_to_coords(Pawn("white"), "e", 2)
-        self.set_figure_to_coords(Pawn("white"), "f", 2)
-        self.set_figure_to_coords(Pawn("white"), "g", 2)
-        self.set_figure_to_coords(Pawn("white"), "h", 2)
-        self.set_figure_to_coords(Pawn("black"), "a", 7)
-        self.set_figure_to_coords(Pawn("black"), "b", 7)
-        self.set_figure_to_coords(Pawn("black"), "c", 7)
-        self.set_figure_to_coords(Pawn("black"), "d", 7)
-        self.set_figure_to_coords(Pawn("black"), "e", 7)
-        self.set_figure_to_coords(Pawn("black"), "f", 7)
-        self.set_figure_to_coords(Pawn("black"), "g", 7)
-        self.set_figure_to_coords(Pawn("black"), "h", 7)
+        self.set_figure_to_coords(Pawn("white", size), "a", 2)
+        self.set_figure_to_coords(Pawn("white", size), "b", 2)
+        self.set_figure_to_coords(Pawn("white", size), "c", 2)
+        self.set_figure_to_coords(Pawn("white", size), "d", 2)
+        self.set_figure_to_coords(Pawn("white", size), "e", 2)
+        self.set_figure_to_coords(Pawn("white", size), "f", 2)
+        self.set_figure_to_coords(Pawn("white", size), "g", 2)
+        self.set_figure_to_coords(Pawn("white", size), "h", 2)
+        self.set_figure_to_coords(Pawn("black", size), "a", 7)
+        self.set_figure_to_coords(Pawn("black", size), "b", 7)
+        self.set_figure_to_coords(Pawn("black", size), "c", 7)
+        self.set_figure_to_coords(Pawn("black", size), "d", 7)
+        self.set_figure_to_coords(Pawn("black", size), "e", 7)
+        self.set_figure_to_coords(Pawn("black", size), "f", 7)
+        self.set_figure_to_coords(Pawn("black", size), "g", 7)
+        self.set_figure_to_coords(Pawn("black", size), "h", 7)
