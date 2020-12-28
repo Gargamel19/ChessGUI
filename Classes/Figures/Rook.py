@@ -6,6 +6,6 @@ class Rook(Figure):
 
     def __init__(self, color, size):
         il = ImageLoader
-        img = [il.load("src/ChessPiecesArray.png", 0, 2, 60, size), il.load("src/ChessPiecesArray.png", 1, 2, 60, size)]
+        img = [il.load("src/ChessPiecesArray.png", 1, 4, 170, size), il.load("src/ChessPiecesArray.png", 0, 4, 170, size)]
         super(Rook, self).__init__(img, color)
 

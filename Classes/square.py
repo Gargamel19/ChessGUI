@@ -14,11 +14,12 @@ class Square:
 
     def draw_square(self, color, color_code, canvas):
         self.color_code = color_code
-        canvas.create_rectangle(self.positionX * (self.heigth / 8),
+        square = canvas.create_rectangle(self.positionX * (self.heigth / 8),
                                 self.positionA * (self.heigth / 8),
                                 self.positionX * (self.heigth / 8) + (self.heigth / 8),
                                 self.positionA * (self.heigth / 8) + (self.heigth / 8),
                                 outline=color, fill=color)
+        canvas.tag_lower(square)
         if self.content != None:
             if self.content.alive:
                 self.content.draw(self.positionX * (self.heigth / 8), self.positionA * (self.heigth / 8), canvas, self.heigth/ 8)

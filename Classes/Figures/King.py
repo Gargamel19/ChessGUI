@@ -6,5 +6,5 @@ class King(Figure):
 
     def __init__(self, color, size):
         il = ImageLoader
-        img = [il.load("src/ChessPiecesArray.png", 0, 1, 60, size), il.load("src/ChessPiecesArray.png", 1, 1, 60, size)]
+        img = [il.load("src/ChessPiecesArray.png", 1, 0, 170, size), il.load("src/ChessPiecesArray.png", 0, 0, 170, size)]
         super(King, self).__init__(img, color)

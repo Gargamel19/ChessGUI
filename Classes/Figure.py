@@ -1,6 +1,8 @@
 import math
 import tkinter as tk
 
+from chess import Move
+
 
 class Figure:
 
@@ -27,7 +29,6 @@ class Figure:
             self.canvas.move(self.tkinterID, event.x - self.lastx, event.y - self.lasty)
             self.lastx = event.x
             self.lasty = event.y
-            #print("Mouse position: (%s %s)" % (event.x, event.y))
 
         return
 
@@ -45,34 +46,34 @@ class Figure:
         print(event)
         if event.num == 1:
             self.buttonPressed = False
-            self.board.squares[self.x][self.y].content = None
-            self.canvas.delete(self.tkinterID)
+
             before_x = math.floor(event.x / self.height)
             before_a = math.floor(event.y / self.height)
-            [a, x] = self.board.get_coordinate_from_square(before_x, before_a)
-            self.board.set_figure_to_coords(self, a, x)
-            self.board.squares[before_x][before_a].draw_content_in_square(self.canvas)
 
+            [start_a, start_x] = self.board.get_coordinate_from_square(self.x, self.y)
+            [goal_a, goal_x] = self.board.get_coordinate_from_square(before_x, before_a)
+
+            print(start_a+str(start_x)+goal_a+str(goal_x))
+            move = Move.from_uci(start_a+str(start_x)+goal_a+str(goal_x))
+            if move in self.board.board_pgn.legal_moves:
+                self.board.board_pgn.push(move)
+            self.board.make_board_to_gui()
 
         return
 
-
-
-    def draw(self, x, y, canvas, heigth):
+    def draw(self, x, y, canvas, height):
         self.canvas = canvas
-        self.height = heigth
+        self.height = height
         if self.color == "white":
             image = self.img[1]
         else:
             image = self.img[0]
 
-
-
         self.tkinterID = canvas.create_image(x, y, image=image, anchor="nw")
+        canvas.tag_raise(self.tkinterID)
         canvas.tag_bind(self.tkinterID, '<Motion>', self.motion)
         canvas.tag_bind(self.tkinterID, '<Button>', self.button)
         canvas.tag_bind(self.tkinterID, '<ButtonRelease>', self.button_release)
-
 
     def is_between(self, original, border_low, border_high):
         if original > border_low:
@@ -86,3 +87,7 @@ class Figure:
 
     def set_board(self, board):
         self.board = board
+
+    def destroy(self):
+        self.canvas.delete(self.tkinterID)
+
