@@ -55,9 +55,14 @@ class Figure:
 
             print(start_a+str(start_x)+goal_a+str(goal_x))
             move = Move.from_uci(start_a+str(start_x)+goal_a+str(goal_x))
+            print(1)
             if move in self.board.board_pgn.legal_moves:
                 self.board.board_pgn.push(move)
+            print(2)
             self.board.make_board_to_gui()
+            print(3)
+            self.board.check_if_right()
+            print(4)
 
         return
 

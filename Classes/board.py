@@ -1,3 +1,5 @@
+import time
+
 from Classes.PGNReader import PGNReader
 from Classes.square import Square
 import tkinter as tk
@@ -31,27 +33,46 @@ class Board:
     height = 0
     board_pgn = None
     canvas = None
+    canvas_text = None
     next_moves = []
+    iteration = 0
+    text_area_with = 0
 
-    def __init__(self, window, height, color_white, color_black):
+    def __init__(self, window, height, color_white, color_black, text_area_with):
         self.color_white = color_white
         self.color_black = color_black
         self.window = window
         self.height = height
-        self.canvas = tk.Canvas(window, width=height, height=height)
-        self.canvas.pack()
+        self.text_area_with = text_area_with
+        self.canvas = tk.Canvas(self.window, width=self.height + self.text_area_with, height=self.height)
+        self.canvas.pack(side="left")
         pgn_r = PGNReader(self)
-        [self.board_pgn, next_moves] = pgn_r.read_random()
-        print(next_moves)
+        [self.board_pgn, self.next_moves] = pgn_r.read_random()
+        print(self.next_moves)
         self.make_board_to_gui()
 
     def clean_board(self):
+
+        self.canvas.destroy()
+        self.canvas = tk.Canvas(self.window, width=self.height + self.text_area_with, height=self.height)
+        self.canvas.pack(side="left")
+        latest_labels = None
+        height = 10
+        if latest_labels != None:
+            bounds = self.canvas.bbox(latest_labels)
+            height = height + (bounds[3] - bounds[1])
+        latest_labels2 = self.canvas.create_text(self.height + 10, height, fill="darkblue",
+                                                 font="Times 20 italic bold",
+                                                 text=self.next_moves[self.iteration - 2]["comment"], anchor="nw",
+                                                 justify="left", width=self.text_area_with - 20)
+        latest_labels = self.canvas.create_text(self.height + 10, 500 + height,  fill="darkblue", font="Times 20 italic bold",
+                                        text=self.next_moves[self.iteration-1]["comment"], anchor="nw", justify="left", width=self.text_area_with-20)
+
 
         for line in self.squares:
             for square in line:
                 if square != None:
                     if square.content != None:
-                        square.content.destroy()
                         square.content = None
 
         for x in range(8):
@@ -74,6 +95,27 @@ class Board:
                     line.append(Square("black", x, y, self.height))
                 white = not white
 
+
+    def check_if_right(self):
+        move = self.board_pgn.pop()
+        if len(self.next_moves)>self.iteration:
+            print(move)
+            print(self.next_moves[self.iteration]["move"])
+            if move == self.next_moves[self.iteration]["move"]:
+                print("Richtig")
+                self.board_pgn.push(move)
+                self.iteration = self.iteration + 1
+                if len(self.next_moves)>self.iteration:
+                    move = self.next_moves[self.iteration]["move"]
+                    self.board_pgn.push(move)
+                    self.iteration = self.iteration + 1
+            else:
+                print("false")
+            self.make_board_to_gui()
+        else:
+            print("no more moves")
+
+
     def print_board(self):
 
         for line in self.squares:
@@ -82,32 +124,12 @@ class Board:
                     sqaure.draw_square(self.color_white, self.color_white, self.canvas)
                 else:
                     sqaure.draw_square(self.color_black, self.color_black, self.canvas)
+        print(self.next_moves[self.iteration-1]["comment"])
 
 
     def set_figure_to_coords(self, figure, coordinateA, coordinate1):
 
-        if coordinateA == "a":
-            a = 7
-        elif coordinateA == "b":
-            a = 6
-        elif coordinateA == "c":
-            a = 5
-        elif coordinateA == "d":
-            a = 4
-        elif coordinateA == "e":
-            a = 3
-        elif coordinateA == "f":
-            a = 2
-        elif coordinateA == "g":
-            a = 1
-        elif coordinateA == "h":
-            a = 0
-
-        x = coordinate1-1
-
-        if self.white_bottom:
-            a = abs(a - 7)
-            x = abs(x - 7)
+        [a, x] = self.get_square_from_coordinate(coordinateA, coordinate1)
 
         self.squares[a][x].content = figure
         figure.set_square(a, x)
@@ -140,6 +162,48 @@ class Board:
         x = x + 1
 
         return [a_erg, x]
+
+    def get_square_from_coordinate(self, coordinateA, coordinate1):
+
+        if coordinateA == "a":
+            a = 7
+        elif coordinateA == "b":
+            a = 6
+        elif coordinateA == "c":
+            a = 5
+        elif coordinateA == "d":
+            a = 4
+        elif coordinateA == "e":
+            a = 3
+        elif coordinateA == "f":
+            a = 2
+        elif coordinateA == "g":
+            a = 1
+        elif coordinateA == "h":
+            a = 0
+
+        x = coordinate1 - 1
+
+        if self.white_bottom:
+            a = abs(a - 7)
+            x = abs(x - 7)
+
+        return [a, x]
+
+    def make_fields_green(self, last_move):
+        a_field_1 = last_move.uci()[0]
+        x_field_1 = int(last_move.uci()[1])
+        a_field_2 = last_move.uci()[2]
+        x_field_2 = int(last_move.uci()[3])
+        [i_1, j_1] = self.get_square_from_coordinate(a_field_1, x_field_1)
+        [i_2, j_2] = self.get_square_from_coordinate(a_field_2, x_field_2)
+        for line in self.squares:
+            for square in line:
+                square.green = False
+        self.squares[i_1][j_1].green = True
+        self.squares[i_2][j_2].green = True
+
+
 
     def reset_board(self):
 
@@ -187,9 +251,13 @@ class Board:
 
         size = self.height / 8
         self.clean_board()
-        print(self.board_pgn)
+        #print(self.board_pgn)
         # [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
         peaces = range(1, 7)
+        if len(self.board_pgn.move_stack) != 0:
+            last_move = self.board_pgn.pop()
+            self.board_pgn.push(last_move)
+            self.make_fields_green(last_move)
         for peace in peaces:
             # white
             for places in self.board_pgn.pieces(peace, True):
